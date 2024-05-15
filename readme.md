@@ -2,7 +2,7 @@
 ## Setup
 
 ### Prerequisites
-- Go installed on your machine (version 1.16 or higher).
+- Go installed on your machine (version 1.19 or higher).
 
 ### Installation
 1. Clone the repository:
