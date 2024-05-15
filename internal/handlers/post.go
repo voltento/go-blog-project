@@ -13,7 +13,7 @@ type BlogService interface {
 	UpdatePost(post *domain.Post, id domain.PostId) error
 }
 
-func RegisterPostHandlers(r *gin.Engine, blog BlogService) {
+func RegisterHandlers(r *gin.Engine, blog BlogService) {
 	s := server{service: blog}
 	r.GET("/posts/:id", s.GetPostByID)
 	r.POST("/posts", s.CreatePost)

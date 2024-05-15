@@ -212,7 +212,7 @@ func (s *HandlersTestSuite) TestUpdatePost_NotFound() {
 func setupRouter(blogService *blogMock) *gin.Engine {
 	r := gin.Default()
 	middlewares.Setup(r)
-	RegisterPostHandlers(r, blogService)
+	RegisterHandlers(r, blogService)
 	return r
 }
 
