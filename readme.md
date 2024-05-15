@@ -1,6 +1,13 @@
 
 ## Setup
 
+### Docker
+1. Build and run
+  ```sh
+    docker build -t go-blog-app .
+    docker run -p 8080:8080 go-blog-app
+  ```
+
 ### Prerequisites
 - Go installed on your machine (version 1.22 or higher).
 
