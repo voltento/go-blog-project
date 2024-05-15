@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-var msgStatusOk gin.H = gin.H{"status": "ok"}
+var msgStatusOk = gin.H{"status": "ok"}
 
 func postIdResp(id domain.PostId) gin.H {
 	return gin.H{"postId": id}

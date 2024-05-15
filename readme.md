@@ -23,31 +23,6 @@
 
 ## API Endpoints and `curl` Examples
 
-### Retrieve all posts
-- **Endpoint:** `GET /posts`
-- **Curl Command:**
-    ```sh
-    curl -X GET http://localhost:8080/posts
-    ```
-- **Response:**
-    ```json
-    [
-        {
-            "id": 1,
-            "title": "Title 1",
-            "content": "Content of the post",
-            "author": "Author 1"
-        },
-        {
-            "id": 2,
-            "title": "Title 2",
-            "content": "Content of the post",
-            "author": "Author 2"
-        },
-        ...
-    ]
-    ```
-
 ### Retrieve a specific post
 - **Endpoint:** `GET /posts/{id}`
 - **Curl Command:**
@@ -103,6 +78,32 @@
     curl -X DELETE http://localhost:8080/posts/1
     ```
 - **Response:** `204 No Content`
+
+
+### Retrieve all posts
+- **Endpoint:** `GET /posts`
+- **Curl Command:**
+    ```sh
+    curl -X GET http://localhost:8080/posts
+    ```
+- **Response:**
+    ```json
+    [
+        {
+            "id": 1,
+            "title": "Title 1",
+            "content": "Content of the post",
+            "author": "Author 1"
+        },
+        {
+            "id": 2,
+            "title": "Title 2",
+            "content": "Content of the post",
+            "author": "Author 2"
+        },
+        ...
+    ]
+    ```
 
 ## Running Tests
 To run the tests, use the following command:
