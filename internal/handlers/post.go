@@ -1,16 +1,17 @@
 package handlers
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/voltento/go-blog-project/internal/domain"
 	"net/http"
 )
 
 type BlogService interface {
-	CreatePost(p *domain.Post) (domain.PostId, error)
-	Post(id domain.PostId) (*domain.Post, error)
-	DeletePost(id domain.PostId) error
-	UpdatePost(post *domain.Post, id domain.PostId) error
+	CreatePost(ctx context.Context, p *domain.Post) (domain.PostId, error)
+	Post(ctx context.Context, id domain.PostId) (*domain.Post, error)
+	DeletePost(ctx context.Context, id domain.PostId) error
+	UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error
 }
 
 func RegisterHandlers(r *gin.Engine, blog BlogService) {
@@ -32,7 +33,7 @@ func (s *server) GetPostByID(c *gin.Context) {
 		return
 	}
 
-	post, err := s.service.Post(id)
+	post, err := s.service.Post(c.Request.Context(), id)
 	if err != nil {
 		c.Error(err)
 		return
@@ -48,7 +49,7 @@ func (s *server) CreatePost(c *gin.Context) {
 		return
 	}
 
-	id, err := s.service.CreatePost(newPost)
+	id, err := s.service.CreatePost(c.Request.Context(), newPost)
 	if err != nil {
 		c.Error(err)
 		return
@@ -64,7 +65,7 @@ func (s *server) DeletePost(c *gin.Context) {
 		return
 	}
 
-	if err := s.service.DeletePost(id); err != nil {
+	if err := s.service.DeletePost(c.Request.Context(), id); err != nil {
 		c.Error(err)
 		return
 	}
@@ -85,7 +86,7 @@ func (s *server) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	if err := s.service.UpdatePost(post, id); err != nil {
+	if err := s.service.UpdatePost(c.Request.Context(), post, id); err != nil {
 		c.Error(err)
 		return
 	}

@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/voltento/go-blog-project/internal/domain"
 	"github.com/voltento/go-blog-project/internal/httperr"
@@ -14,7 +15,7 @@ func TestPost(t *testing.T) {
 	s.posts[1] = &domain.Post{ID: 1, Title: "Test Post", Content: "Content", Author: "Author"}
 
 	t.Run("Post exists", func(t *testing.T) {
-		post, err := s.Post(1)
+		post, err := s.Post(context.Background(), 1)
 		assert.NoError(t, err)
 		assert.NotNil(t, post)
 		assert.Equal(t, domain.PostId(1), post.ID)
@@ -22,7 +23,7 @@ func TestPost(t *testing.T) {
 	})
 
 	t.Run("Post does not exist", func(t *testing.T) {
-		post, err := s.Post(2)
+		post, err := s.Post(context.Background(), 2)
 		assert.Nil(t, post)
 		assert.Error(t, err)
 		assert.Equal(t, http.StatusNotFound, httperr.HTTPStatusCode(err, -1))
@@ -35,12 +36,12 @@ func TestCreatePost(t *testing.T) {
 	post := &domain.Post{Title: "New Post", Content: "New Content", Author: "New Author", ID: 10}
 
 	t.Run("Create a new post", func(t *testing.T) {
-		id, err := s.CreatePost(post)
+		id, err := s.CreatePost(context.Background(), post)
 
 		assert.NoError(t, err)
 		assert.NotZero(t, id)
 
-		createdPost, err := s.Post(id)
+		createdPost, err := s.Post(context.Background(), id)
 		assert.NoError(t, err)
 		assert.Equal(t, "New Post", createdPost.Title)
 		assert.Equal(t, "New Content", createdPost.Content)
@@ -91,15 +92,15 @@ func TestStorage_DeletePost(t *testing.T) {
 
 	t.Run("Delete existing post", func(t *testing.T) {
 		post := &domain.Post{}
-		id, err := s.CreatePost(post)
+		id, err := s.CreatePost(context.Background(), post)
 		assert.NoError(t, err)
 
-		assert.NoError(t, s.DeletePost(id))
+		assert.NoError(t, s.DeletePost(context.Background(), id))
 	})
 
 	t.Run("Delete not existing post", func(t *testing.T) {
 		id := s.nextAvailableId()
-		assert.NoError(t, s.DeletePost(id))
+		assert.NoError(t, s.DeletePost(context.Background(), id))
 	})
 }
 
@@ -108,7 +109,7 @@ func TestStorage_UpdatePost(t *testing.T) {
 	s.posts = make(map[domain.PostId]*domain.Post)
 
 	t.Run("Update existing post", func(t *testing.T) {
-		id, err := s.CreatePost(&domain.Post{})
+		id, err := s.CreatePost(context.Background(), &domain.Post{})
 		assert.NoError(t, err)
 
 		post := &domain.Post{
@@ -117,9 +118,9 @@ func TestStorage_UpdatePost(t *testing.T) {
 			Author:  "author",
 		}
 
-		assert.NoError(t, s.UpdatePost(post, id))
+		assert.NoError(t, s.UpdatePost(context.Background(), post, id))
 
-		updatedPost, err := s.Post(id)
+		updatedPost, err := s.Post(context.Background(), id)
 		assert.NoError(t, err)
 
 		assert.EqualValues(t, post, updatedPost)
@@ -129,7 +130,7 @@ func TestStorage_UpdatePost(t *testing.T) {
 		id := s.nextAvailableId()
 		post := &domain.Post{}
 
-		err := s.UpdatePost(post, id)
+		err := s.UpdatePost(context.Background(), post, id)
 		assert.Error(t, err)
 
 		assert.Equal(t, http.StatusNotFound, httperr.HTTPStatusCode(err, -1))

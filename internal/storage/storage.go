@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"fmt"
 	"github.com/voltento/go-blog-project/internal/domain"
 	"github.com/voltento/go-blog-project/internal/httperr"
@@ -16,7 +17,15 @@ type Storage struct {
 	seqId *int64
 }
 
-func (s *Storage) UpdatePost(post *domain.Post, id domain.PostId) error {
+func NewStorage() *Storage {
+	var startId int64 = 1
+	return &Storage{
+		seqId: &startId,
+		posts: map[domain.PostId]*domain.Post{},
+	}
+}
+
+func (s *Storage) UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error {
 	post.ID = id
 
 	s.postsMtx.Lock()
@@ -31,7 +40,7 @@ func (s *Storage) UpdatePost(post *domain.Post, id domain.PostId) error {
 	return nil
 }
 
-func (s *Storage) DeletePost(id domain.PostId) error {
+func (s *Storage) DeletePost(ctx context.Context, id domain.PostId) error {
 	s.postsMtx.Lock()
 	defer s.postsMtx.Unlock()
 
@@ -39,7 +48,7 @@ func (s *Storage) DeletePost(id domain.PostId) error {
 	return nil
 }
 
-func (s *Storage) Post(id domain.PostId) (*domain.Post, error) {
+func (s *Storage) Post(ctx context.Context, id domain.PostId) (*domain.Post, error) {
 	s.postsMtx.RLock()
 	defer s.postsMtx.RUnlock()
 
@@ -51,7 +60,7 @@ func (s *Storage) Post(id domain.PostId) (*domain.Post, error) {
 	return nil, httperr.WrapWithHttpCode(err, http.StatusNotFound)
 }
 
-func (s *Storage) CreatePost(post *domain.Post) (domain.PostId, error) {
+func (s *Storage) CreatePost(ctx context.Context, post *domain.Post) (domain.PostId, error) {
 	nextPostId := s.nextAvailableId()
 	post.ID = nextPostId
 
@@ -75,13 +84,5 @@ func (s *Storage) nextAvailableId() domain.PostId {
 		if _, busy := s.posts[postId]; !busy {
 			return postId
 		}
-	}
-}
-
-func NewStorage() *Storage {
-	var startId int64 = 1
-	return &Storage{
-		seqId: &startId,
-		posts: map[domain.PostId]*domain.Post{},
 	}
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -224,22 +225,22 @@ type blogMock struct {
 	mock.Mock
 }
 
-func (m *blogMock) Post(id domain.PostId) (*domain.Post, error) {
+func (m *blogMock) Post(ctx context.Context, id domain.PostId) (*domain.Post, error) {
 	args := m.Called(id)
 	return args.Get(0).(*domain.Post), args.Error(1)
 }
 
-func (m *blogMock) CreatePost(post *domain.Post) (domain.PostId, error) {
+func (m *blogMock) CreatePost(ctx context.Context, post *domain.Post) (domain.PostId, error) {
 	args := m.Called(post)
 	return args.Get(0).(domain.PostId), args.Error(1)
 }
 
-func (m *blogMock) DeletePost(id domain.PostId) error {
+func (m *blogMock) DeletePost(ctx context.Context, id domain.PostId) error {
 	args := m.Called(id)
 	return args.Error(0)
 }
 
-func (m *blogMock) UpdatePost(post *domain.Post, id domain.PostId) error {
+func (m *blogMock) UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error {
 	args := m.Called(post, id)
 	return args.Error(0)
 }
