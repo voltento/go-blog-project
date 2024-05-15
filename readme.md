@@ -18,7 +18,7 @@
 
 3. Run the application:
     ```sh
-    go run cmd/api/main.go --port=8080
+    GIN_MODE=release go run cmd/api/main.go --port=8080
     ```
 
 ## API Endpoints and `curl` Examples

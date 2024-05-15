@@ -13,7 +13,7 @@ func main() {
 	port := flag.String("port", "8080", "Port for the API handlers")
 	flag.Parse()
 
-	r := gin.Default()
+	r := gin.New()
 	middlewares.Setup(r)
 
 	s := storage.NewStorage()
