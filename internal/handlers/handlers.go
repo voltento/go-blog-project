@@ -7,19 +7,20 @@ import (
 	"net/http"
 )
 
-type BlogService interface {
-	CreatePost(ctx context.Context, p *domain.Post) (domain.PostId, error)
-	Post(ctx context.Context, id domain.PostId) (*domain.Post, error)
-	DeletePost(ctx context.Context, id domain.PostId) error
-	UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error
-}
-
+// RegisterHandlers binds all the handlers to the http router
 func RegisterHandlers(r *gin.Engine, blog BlogService) {
 	s := server{service: blog}
 	r.GET("/posts/:id", s.GetPostByID)
 	r.POST("/posts", s.CreatePost)
 	r.DELETE("/posts/:id", s.DeletePost)
 	r.PUT("/posts/:id", s.UpdatePost)
+}
+
+type BlogService interface {
+	CreatePost(ctx context.Context, p *domain.Post) (domain.PostId, error)
+	Post(ctx context.Context, id domain.PostId) (*domain.Post, error)
+	DeletePost(ctx context.Context, id domain.PostId) error
+	UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error
 }
 
 type server struct {

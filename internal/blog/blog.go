@@ -5,19 +5,21 @@ import (
 	"github.com/voltento/go-blog-project/internal/domain"
 )
 
-type Storage interface {
-	Post(ctx context.Context, id domain.PostId) (*domain.Post, error)
-	CreatePost(ctx context.Context, post *domain.Post) (domain.PostId, error)
-	DeletePost(ctx context.Context, id domain.PostId) error
-	UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error
-}
-
+// Blog intended to keep business logic and interact with storage
+// Any new business logic should be added here rather than in Storage entity.
 type Blog struct {
 	storage Storage
 }
 
 func NewBlog(s Storage) *Blog {
 	return &Blog{storage: s}
+}
+
+type Storage interface {
+	Post(ctx context.Context, id domain.PostId) (*domain.Post, error)
+	CreatePost(ctx context.Context, post *domain.Post) (domain.PostId, error)
+	DeletePost(ctx context.Context, id domain.PostId) error
+	UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error
 }
 
 func (b *Blog) CreatePost(ctx context.Context, p *domain.Post) (domain.PostId, error) {
