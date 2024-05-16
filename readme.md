@@ -117,8 +117,7 @@ Implementing an optimal storage solution with pagination would require additiona
             "title": "Title 2",
             "content": "Content of the post",
             "author": "Author 2"
-        },
-        ...
+        }
      ]
     }
     ```
