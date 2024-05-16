@@ -11,7 +11,6 @@ import (
 	"github.com/voltento/go-blog-project/internal/migration"
 	"github.com/voltento/go-blog-project/internal/storage"
 	"golang.org/x/exp/slog"
-	"log"
 	"os"
 )
 
@@ -50,7 +49,7 @@ func run() error {
 // @host	localhost:8080
 func main() {
 	if err := run(); err != nil {
-		log.Fatal("Failed to start", "error", err)
+		slog.Error("Failed to start", "error", err)
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
