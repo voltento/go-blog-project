@@ -39,6 +39,7 @@ func run() error {
 	b := blog.NewBlog(s)
 	handlers.RegisterHandlers(r, b)
 
+	slog.Info("starting service")
 	return r.Run(":" + *port)
 }
 

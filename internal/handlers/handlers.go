@@ -45,6 +45,9 @@ func (s *server) GetPostByID(c *gin.Context) {
 	c.JSON(http.StatusOK, post)
 }
 
+// Posts returns as the available posts.
+// The API does not support pagination for sake of
+// simplicity of the Storage
 func (s *server) Posts(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"posts": s.service.Posts(c)})
 }

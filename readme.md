@@ -88,6 +88,9 @@
 
 
 ### Retrieve all posts
+The Posts method returns all available posts. Pagination is not implemented to maintain the simplicity of the Storage. The task specifies using an in-memory data store, and for the scope of this technical test, pagination is omitted to focus on core CRUD operations and ensure straightforward data handling.
+
+Implementing an optimal storage solution with pagination would require additional considerations for space and synchronization efficiency. It's better to reuse ready solutions like SQL databases rather than implementing from scratch.
 - **Endpoint:** `GET /posts`
 - **Curl Command:**
     ```sh
@@ -95,7 +98,8 @@
     ```
 - **Response:**
     ```json
-    [
+    {
+      "posts": [
         {
             "id": 1,
             "title": "Title 1",
@@ -109,7 +113,8 @@
             "author": "Author 2"
         },
         ...
-    ]
+     ]
+    }
     ```
 
 ## Running Tests
