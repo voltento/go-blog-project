@@ -2,7 +2,13 @@
 ## Setup
 
 ### Docker
-- Build and run
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/voltento/go-blog-project
+    cd go-blog-project
+    ```
+   
+2. Build and run service in Docker
   ```sh
     docker build -t go-blog-app .
     docker run -p 8080:8080 go-blog-app
