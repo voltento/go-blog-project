@@ -116,11 +116,8 @@ func (s *HandlersTestSuite) TestDeletePost_serviceReturnsError() {
 	err := httperr.WrapWithHttpCode(errors.New(""), http.StatusConflict)
 	s.mockBlog.On("DeletePost", mock.Anything, domain.PostId(1)).Return(err)
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/posts/1", nil)
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusConflict, w.Code)
+	s.expect.DELETE("/posts/1").Expect().
+		Status(http.StatusConflict)
 
 	s.mockBlog.AssertExpectations(s.T())
 }
