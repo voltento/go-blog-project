@@ -14,7 +14,7 @@ import (
 
 func main() {
 	port := flag.String("port", "8080", "Port for the API handlers")
-	migrationFile := flag.String("migration", "", "Migration file")
+	migrationFile := flag.String("migration", "./resourses/blog_data.json", "Migration file")
 	flag.Parse()
 
 	s := storage.NewStorage()

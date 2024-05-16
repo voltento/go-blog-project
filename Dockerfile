@@ -7,7 +7,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app cmd/api/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app cmd/blog/main.go
 
 FROM alpine:latest
 
@@ -24,7 +24,7 @@ USER rootless
 
 
 COPY --from=builder /app/app .
-COPY resourses/migration.txt ./migration.txt
+COPY resourses/blog_data.json ./blog_data.json
 
 EXPOSE 8080
 
@@ -32,4 +32,4 @@ EXPOSE 8080
 ENV GIN_MODE release
 
 # Command to run the application
-CMD ["./app", "--migration", "migration.txt"]
+CMD ["./app", "--migration", "blog_data.json"]

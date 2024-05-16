@@ -25,7 +25,7 @@
 
 3. Run the application:
     ```sh
-    GIN_MODE=release go run cmd/api/main.go --port=8080 --migration=<file_to_migration>
+    GIN_MODE=release go run cmd/blog/main.go --port=8080 --migration=<file_to_migration>
     ```
 
 ## API Endpoints and `curl` Examples
