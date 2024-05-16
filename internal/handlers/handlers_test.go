@@ -14,17 +14,30 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/gavv/httpexpect/v2"
 )
 
 type HandlersTestSuite struct {
 	suite.Suite
+	server   *httptest.Server
 	mockBlog *mocks.BlogService
 	router   *gin.Engine
+
+	expect *httpexpect.Expect
 }
 
 func (s *HandlersTestSuite) SetupTest() {
 	s.mockBlog = new(mocks.BlogService)
-	s.router = setupRouter(s.mockBlog)
+
+	gin.SetMode(gin.TestMode)
+	s.router = gin.Default()
+
+	middlewares.Setup(s.router)
+	RegisterHandlers(s.router, s.mockBlog)
+	s.server = httptest.NewServer(s.router)
+
+	s.expect = httpexpect.Default(s.T(), s.server.URL)
 }
 
 func (s *HandlersTestSuite) TestGetPostByID() {
@@ -43,16 +56,9 @@ func (s *HandlersTestSuite) TestGetPostByID() {
 }
 
 func (s *HandlersTestSuite) TestGetPostByID_WrongPostIdFormat() {
-	mockBlog := new(mocks.BlogService)
-	router := setupRouter(mockBlog)
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/posts/wrongId", nil)
-	router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusBadRequest, w.Code)
-
-	mockBlog.AssertExpectations(s.T())
+	s.expect.GET("GET", "/posts/wrongId").
+		Expect().
+		Status(http.StatusBadRequest)
 }
 
 func (s *HandlersTestSuite) TestCreatePost() {
@@ -208,13 +214,6 @@ func (s *HandlersTestSuite) TestUpdatePost_NotFound() {
 	assert.Equal(s.T(), http.StatusNotFound, w.Code)
 
 	s.mockBlog.AssertExpectations(s.T())
-}
-
-func setupRouter(blogService *mocks.BlogService) *gin.Engine {
-	r := gin.Default()
-	middlewares.Setup(r)
-	RegisterHandlers(r, blogService)
-	return r
 }
 
 func TestHandlersTestSuite(t *testing.T) {
