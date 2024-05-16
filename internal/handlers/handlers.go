@@ -11,6 +11,7 @@ import (
 func RegisterHandlers(r *gin.Engine, blog BlogService) {
 	s := server{service: blog}
 	r.GET("/posts/:id", s.GetPostByID)
+	r.GET("/posts", s.Posts)
 	r.POST("/posts", s.CreatePost)
 	r.DELETE("/posts/:id", s.DeletePost)
 	r.PUT("/posts/:id", s.UpdatePost)
@@ -21,6 +22,7 @@ type BlogService interface {
 	Post(ctx context.Context, id domain.PostId) (*domain.Post, error)
 	DeletePost(ctx context.Context, id domain.PostId) error
 	UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error
+	Posts(ctx context.Context) []*domain.Post
 }
 
 type server struct {
@@ -41,6 +43,10 @@ func (s *server) GetPostByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, post)
+}
+
+func (s *server) Posts(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"posts": s.service.Posts(c)})
 }
 
 func (s *server) CreatePost(c *gin.Context) {

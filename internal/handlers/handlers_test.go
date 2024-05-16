@@ -49,7 +49,7 @@ func (s *HandlersTestSuite) TestGetPostByID() {
 }
 
 func (s *HandlersTestSuite) TestGetPostByID_WrongPostIdFormat() {
-	s.expect.GET("GET", "/posts/wrongId").
+	s.expect.GET("/posts/wrongId").
 		Expect().
 		Status(http.StatusBadRequest)
 }
@@ -109,7 +109,7 @@ func (s *HandlersTestSuite) TestDeletePost_WrongPostIdFormat() {
 	s.mockBlog.AssertExpectations(s.T())
 }
 
-func (s *HandlersTestSuite) TestDeletePost_serviceReturnsError() {
+func (s *HandlersTestSuite) TestDeletePost_ServiceReturnsError() {
 	err := httperr.WrapWithHttpCode(errors.New(""), http.StatusConflict)
 	s.mockBlog.On("DeletePost", mock.Anything, domain.PostId(1)).Return(err)
 
@@ -139,7 +139,7 @@ func (s *HandlersTestSuite) TestUpdatePost_WrongPostIdFormat() {
 	s.mockBlog.AssertExpectations(s.T())
 }
 
-func (s *HandlersTestSuite) TestUpdatePost_serviceReturnsError() {
+func (s *HandlersTestSuite) TestUpdatePost_ServiceReturnsError() {
 	err := httperr.WrapWithHttpCode(errors.New(""), http.StatusForbidden)
 	s.mockBlog.On("UpdatePost", mock.Anything, mock.Anything, domain.PostId(1)).Return(err)
 
@@ -150,7 +150,7 @@ func (s *HandlersTestSuite) TestUpdatePost_serviceReturnsError() {
 	s.mockBlog.AssertExpectations(s.T())
 }
 
-func (s *HandlersTestSuite) TestUpdatePost_wrongPostFormat() {
+func (s *HandlersTestSuite) TestUpdatePost_WrongPostFormat() {
 	s.expect.PUT("/posts/1").
 		WithBytes([]byte(`{wrong format}`)).Expect().
 		Status(http.StatusBadRequest)
@@ -172,6 +172,21 @@ func (s *HandlersTestSuite) TestUpdatePost_NotFound() {
 		WithBytes([]byte(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`)).
 		Expect().
 		Status(http.StatusNotFound)
+
+	s.mockBlog.AssertExpectations(s.T())
+}
+
+func (s *HandlersTestSuite) TestPosts() {
+	posts := []*domain.Post{
+		&domain.Post{ID: 1, Title: "title", Content: "content", Author: "author"},
+		&domain.Post{ID: 1, Title: "title", Content: "content", Author: "author"},
+	}
+	s.mockBlog.On("Posts", mock.Anything).Return(posts)
+
+	s.expect.GET("/posts").
+		Expect().
+		Status(http.StatusOK).
+		Body().IsEqual(`{"posts":[{"ID":1,"Title":"title","Content":"content","Author":"author"},{"ID":1,"Title":"title","Content":"content","Author":"author"}]}`)
 
 	s.mockBlog.AssertExpectations(s.T())
 }
