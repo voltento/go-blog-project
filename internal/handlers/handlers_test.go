@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"errors"
+	"github.com/gavv/httpexpect/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"github.com/voltento/go-blog-project/internal/domain"
@@ -12,10 +12,7 @@ import (
 	"github.com/voltento/go-blog-project/mocks"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
-
-	"github.com/gavv/httpexpect/v2"
 )
 
 type HandlersTestSuite struct {
@@ -125,24 +122,19 @@ func (s *HandlersTestSuite) TestDeletePost_serviceReturnsError() {
 func (s *HandlersTestSuite) TestUpdatePost() {
 	s.mockBlog.On("UpdatePost", mock.Anything, mock.Anything, domain.PostId(1)).Return(nil)
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/posts/1", strings.NewReader(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`))
-	req.Header.Set("Content-Type", "application/json")
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusOK, w.Code)
-	assert.Contains(s.T(), w.Body.String(), `"postId":1`)
+	s.expect.PUT("/posts/1").
+		WithBytes([]byte(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`)).
+		Expect().
+		Status(http.StatusOK).
+		Body().IsEqual(`{"postId":1}`)
 
 	s.mockBlog.AssertExpectations(s.T())
 }
 
 func (s *HandlersTestSuite) TestUpdatePost_WrongPostIdFormat() {
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/posts/wrongId", strings.NewReader(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`))
-	req.Header.Set("Content-Type", "application/json")
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusBadRequest, w.Code)
+	s.expect.PUT("/posts/wrongId").
+		WithBytes([]byte(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`)).Expect().
+		Status(http.StatusBadRequest).Body().NotEmpty()
 
 	s.mockBlog.AssertExpectations(s.T())
 }
@@ -151,35 +143,24 @@ func (s *HandlersTestSuite) TestUpdatePost_serviceReturnsError() {
 	err := httperr.WrapWithHttpCode(errors.New(""), http.StatusForbidden)
 	s.mockBlog.On("UpdatePost", mock.Anything, mock.Anything, domain.PostId(1)).Return(err)
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/posts/1", strings.NewReader(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`))
-	req.Header.Set("Content-Type", "application/json")
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusForbidden, w.Code)
+	s.expect.PUT("/posts/1").
+		WithBytes([]byte(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`)).Expect().
+		Status(http.StatusForbidden)
 
 	s.mockBlog.AssertExpectations(s.T())
 }
 
 func (s *HandlersTestSuite) TestUpdatePost_wrongPostFormat() {
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/posts/1", strings.NewReader(`faulty format`))
-	req.Header.Set("Content-Type", "application/json")
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusBadRequest, w.Code)
-
-	s.mockBlog.AssertExpectations(s.T())
+	s.expect.PUT("/posts/1").
+		WithBytes([]byte(`{wrong format}`)).Expect().
+		Status(http.StatusBadRequest)
 }
 
 func (s *HandlersTestSuite) TestGetPostByID_NotFound() {
 	s.mockBlog.On("Post", mock.Anything, domain.PostId(1)).Return(&domain.Post{}, httperr.WrapWithHttpCode(errors.New("post not found"), http.StatusNotFound))
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/posts/1", nil)
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusNotFound, w.Code)
+	s.expect.GET("/posts/1").Expect().
+		Status(http.StatusNotFound)
 
 	s.mockBlog.AssertExpectations(s.T())
 }
@@ -187,12 +168,10 @@ func (s *HandlersTestSuite) TestGetPostByID_NotFound() {
 func (s *HandlersTestSuite) TestUpdatePost_NotFound() {
 	s.mockBlog.On("UpdatePost", mock.Anything, mock.Anything, domain.PostId(1)).Return(httperr.WrapWithHttpCode(errors.New("post not found"), http.StatusNotFound))
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/posts/1", strings.NewReader(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`))
-	req.Header.Set("Content-Type", "application/json")
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusNotFound, w.Code)
+	s.expect.PUT("/posts/1").
+		WithBytes([]byte(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`)).
+		Expect().
+		Status(http.StatusNotFound)
 
 	s.mockBlog.AssertExpectations(s.T())
 }
