@@ -10,11 +10,11 @@ import (
 // RegisterHandlers binds all the handlers to the http router
 func RegisterHandlers(r *gin.Engine, blog BlogService) {
 	s := server{service: blog}
-	r.GET("/posts/:id", s.GetPostByID)
-	r.GET("/posts", s.Posts)
-	r.POST("/posts", s.CreatePost)
-	r.DELETE("/posts/:id", s.DeletePost)
-	r.PUT("/posts/:id", s.UpdatePost)
+	r.GET("v1/posts/:id", s.GetPostByID)
+	r.GET("v1/posts", s.Posts)
+	r.POST("v1/posts", s.CreatePost)
+	r.DELETE("v1/posts/:id", s.DeletePost)
+	r.PUT("v1/posts/:id", s.UpdatePost)
 }
 
 type BlogService interface {

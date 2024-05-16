@@ -2,7 +2,7 @@
 ## Setup
 
 ### Docker
-1. Build and run
+- Build and run
   ```sh
     docker build -t go-blog-app .
     docker run -p 8080:8080 go-blog-app
@@ -25,16 +25,16 @@
 
 3. Run the application:
     ```sh
-    GIN_MODE=release go run cmd/blog/main.go --port=8080 --migration=<file_to_migration>
+    GIN_MODE=release go run cmd/blog/main.go --port=8080 --migration=resourses/blog_data.json
     ```
 
 ## API Endpoints and `curl` Examples
 
 ### Retrieve a specific post
-- **Endpoint:** `GET /posts/{id}`
+- **Endpoint:** `GET /v1/posts/{id}`
 - **Curl Command:**
     ```sh
-    curl -X GET http://localhost:8080/posts/1
+    curl -X GET http://localhost:8080/v1/posts/1
     ```
 - **Response:**
     ```json
@@ -47,10 +47,10 @@
     ```
 
 ### Create a new post
-- **Endpoint:** `POST /posts`
+- **Endpoint:** `POST /v1/posts`
 - **Curl Command:**
     ```sh
-    curl -X POST http://localhost:8080/posts -H "Content-Type: application/json" -d '{"title":"New Post","content":"New Content","author":"New Author"}'
+    curl -X POST http://localhost:8080/v1/posts -H "Content-Type: application/json" -d '{"title":"New Post","content":"New Content","author":"New Author"}'
     ```
 - **Response:**
     ```json
@@ -63,10 +63,10 @@
     ```
 
 ### Update an existing post
-- **Endpoint:** `PUT /posts/{id}`
+- **Endpoint:** `PUT /v1/posts/{id}`
 - **Curl Command:**
     ```sh
-    curl -X PUT http://localhost:8080/posts/1 -H "Content-Type: application/json" -d '{"title":"Updated Post","content":"Updated Content","author":"Updated Author"}'
+    curl -X PUT http://localhost:8080/v1/posts/1 -H "Content-Type: application/json" -d '{"title":"Updated Post","content":"Updated Content","author":"Updated Author"}'
     ```
 - **Response:**
     ```json
@@ -79,10 +79,10 @@
     ```
 
 ### Delete a post
-- **Endpoint:** `DELETE /posts/{id}`
+- **Endpoint:** `DELETE /v1/posts/{id}`
 - **Curl Command:**
     ```sh
-    curl -X DELETE http://localhost:8080/posts/1
+    curl -X DELETE http://localhost:8080/v1/posts/1
     ```
 - **Response:** `204 No Content`
 
@@ -91,10 +91,10 @@
 The Posts method returns all available posts. Pagination is not implemented to maintain the simplicity of the Storage. The task specifies using an in-memory data store, and for the scope of this technical test, pagination is omitted to focus on core CRUD operations and ensure straightforward data handling.
 
 Implementing an optimal storage solution with pagination would require additional considerations for space and synchronization efficiency. It's better to reuse ready solutions like SQL databases rather than implementing from scratch.
-- **Endpoint:** `GET /posts`
+- **Endpoint:** `GET /v1/posts`
 - **Curl Command:**
     ```sh
-    curl -X GET http://localhost:8080/posts
+    curl -X GET http://localhost:8080/v1/posts
     ```
 - **Response:**
     ```json
