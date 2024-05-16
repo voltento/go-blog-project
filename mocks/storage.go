@@ -86,6 +86,45 @@ func (_m *Storage) UpdatePost(ctx context.Context, post *domain.Post, id domain.
 	return r0
 }
 
+// ListPosts provides a mock function with given fields: ctx, page, pageSize
+func (_m *Storage) ListPosts(ctx context.Context, page int, pageSize int) ([]*domain.Post, error) {
+	ret := _m.Called(ctx, page, pageSize)
+
+	var r0 []*domain.Post
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) []*domain.Post); ok {
+		r0 = rf(ctx, page, pageSize)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*domain.Post)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, int, int) error); ok {
+		r1 = rf(ctx, page, pageSize)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Posts provides a mock function with given fields: ctx
+func (_m *Storage) Posts(ctx context.Context) []*domain.Post {
+	ret := _m.Called(ctx)
+
+	var r0 []*domain.Post
+	if rf, ok := ret.Get(0).(func(context.Context) []*domain.Post); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*domain.Post)
+		}
+	}
+
+	return r0
+}
+
 type mockConstructorTestingTNewStorage interface {
 	mock.TestingT
 	Cleanup(func())

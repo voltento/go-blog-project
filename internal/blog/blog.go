@@ -20,6 +20,7 @@ type Storage interface {
 	CreatePost(ctx context.Context, post *domain.Post) (domain.PostId, error)
 	DeletePost(ctx context.Context, id domain.PostId) error
 	UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error
+	Posts(ctx context.Context) []*domain.Post
 }
 
 func (b *Blog) CreatePost(ctx context.Context, p *domain.Post) (domain.PostId, error) {
@@ -36,4 +37,8 @@ func (b *Blog) DeletePost(ctx context.Context, id domain.PostId) error {
 
 func (b *Blog) UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error {
 	return b.storage.UpdatePost(ctx, post, id)
+}
+
+func (b *Blog) Posts(ctx context.Context) []*domain.Post {
+	return b.storage.Posts(ctx)
 }

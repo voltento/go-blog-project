@@ -117,6 +117,20 @@ func (s *BlogTestSuite) TestUpdatePost_Error() {
 	s.mockStorage.AssertExpectations(s.T())
 }
 
+func (s *BlogTestSuite) TestPosts() {
+	posts := []*domain.Post{
+		{ID: 1, Title: "Post 1", Content: "Content 1", Author: "Author 1"},
+		{ID: 2, Title: "Post 2", Content: "Content 2", Author: "Author 2"},
+	}
+
+	s.mockStorage.On("Posts", s.ctx).Return(posts)
+
+	result := s.blog.Posts(s.ctx)
+
+	assert.Equal(s.T(), posts, result)
+	s.mockStorage.AssertExpectations(s.T())
+}
+
 func TestBlogTestSuite(t *testing.T) {
 	suite.Run(t, new(BlogTestSuite))
 }

@@ -86,7 +86,7 @@ func TestNewStorage(t *testing.T) {
 	assert.NotNil(t, s.posts)
 }
 
-func TestStorage_DeletePost(t *testing.T) {
+func TestStorageDeletePost(t *testing.T) {
 	s := NewStorage()
 	s.posts = make(map[domain.PostId]*domain.Post)
 
@@ -104,7 +104,7 @@ func TestStorage_DeletePost(t *testing.T) {
 	})
 }
 
-func TestStorage_UpdatePost(t *testing.T) {
+func TestStorageUpdatePost(t *testing.T) {
 	s := NewStorage()
 	s.posts = make(map[domain.PostId]*domain.Post)
 
@@ -135,4 +135,19 @@ func TestStorage_UpdatePost(t *testing.T) {
 
 		assert.Equal(t, http.StatusNotFound, httperr.HTTPStatusCode(err, -1))
 	})
+}
+
+func TestStoragePosts(t *testing.T) {
+	ctx := context.Background()
+	s := NewStorage()
+
+	assert.Empty(t, s.Posts(ctx))
+
+	_, err := s.CreatePost(ctx, &domain.Post{})
+	assert.NoError(t, err)
+	assert.Len(t, s.Posts(ctx), 1)
+
+	_, err = s.CreatePost(ctx, &domain.Post{})
+	assert.NoError(t, err)
+	assert.Len(t, s.Posts(ctx), 2)
 }

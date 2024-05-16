@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 )
 
+// Storage uses simple map as data storage as per task description
 type Storage struct {
 	postsMtx sync.RWMutex
 	posts    map[domain.PostId]*domain.Post
@@ -46,6 +47,18 @@ func (s *Storage) DeletePost(ctx context.Context, id domain.PostId) error {
 
 	delete(s.posts, id)
 	return nil
+}
+
+func (s *Storage) Posts(ctx context.Context) []*domain.Post {
+	s.postsMtx.RLock()
+	defer s.postsMtx.RUnlock()
+
+	posts := make([]*domain.Post, 0, len(s.posts))
+	for _, p := range s.posts {
+		posts = append(posts, p)
+	}
+
+	return posts
 }
 
 func (s *Storage) Post(ctx context.Context, id domain.PostId) (*domain.Post, error) {
