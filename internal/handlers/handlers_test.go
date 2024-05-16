@@ -61,29 +61,25 @@ func (s *HandlersTestSuite) TestCreatePost() {
 	newPost := &domain.Post{Title: "New Post", Content: "New Content", Author: "New Author"}
 	s.mockBlog.On("CreatePost", mock.Anything, mock.Anything).Return(domain.PostId(1), nil).Run(func(args mock.Arguments) {
 		post := args.Get(1).(*domain.Post)
-		assert.Equal(s.T(), newPost.Title, post.Title)
-		assert.Equal(s.T(), newPost.Content, post.Content)
-		assert.Equal(s.T(), newPost.Author, post.Author)
+		s.Equal(newPost.Title, post.Title)
+		s.Equal(newPost.Content, post.Content)
+		s.Equal(newPost.Author, post.Author)
 	})
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/posts", strings.NewReader(`{"title":"New Post","content":"New Content","author":"New Author"}`))
-	req.Header.Set("Content-Type", "application/json")
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusCreated, w.Code)
-	assert.Contains(s.T(), w.Body.String(), `"postId":1`)
+	s.expect.POST("/posts").
+		WithJSON(newPost).
+		Expect().
+		Status(http.StatusCreated).
+		Body().IsEqual("{\"postId\":1}")
 
 	s.mockBlog.AssertExpectations(s.T())
 }
 
 func (s *HandlersTestSuite) TestCreatePost_WrongPostFormat() {
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/posts", strings.NewReader(`{"content":"New Content","author":"New Author"}`))
-	req.Header.Set("Content-Type", "application/json")
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusBadRequest, w.Code)
+	s.expect.POST("/posts").
+		WithJSON(map[string]string{"content": "New Content", "author": "New Author"}).
+		Expect().
+		Status(http.StatusBadRequest)
 
 	s.mockBlog.AssertExpectations(s.T())
 }
@@ -92,12 +88,10 @@ func (s *HandlersTestSuite) TestCreatePost_ServiceCreateRequestFailed() {
 	err := httperr.WrapWithHttpCode(errors.New(""), http.StatusConflict)
 	s.mockBlog.On("CreatePost", mock.Anything, mock.Anything).Return(domain.PostId(1), err)
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/posts", strings.NewReader(`{"title":"New Post","content":"New Content","author":"New Author"}`))
-	req.Header.Set("Content-Type", "application/json")
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusConflict, w.Code)
+	s.expect.POST("/posts").
+		WithJSON(map[string]string{"title": "New Post", "content": "New Content", "author": "New Author"}).
+		Expect().
+		Status(http.StatusConflict)
 
 	s.mockBlog.AssertExpectations(s.T())
 }
@@ -105,21 +99,15 @@ func (s *HandlersTestSuite) TestCreatePost_ServiceCreateRequestFailed() {
 func (s *HandlersTestSuite) TestDeletePost() {
 	s.mockBlog.On("DeletePost", mock.Anything, domain.PostId(1)).Return(nil)
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/posts/1", nil)
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusNoContent, w.Code)
+	s.expect.DELETE("/posts/1").Expect().
+		Status(http.StatusNoContent)
 
 	s.mockBlog.AssertExpectations(s.T())
 }
 
 func (s *HandlersTestSuite) TestDeletePost_WrongPostIdFormat() {
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/posts/wrongId", nil)
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusBadRequest, w.Code)
+	s.expect.DELETE("/posts/wrongId").Expect().
+		Status(http.StatusBadRequest)
 
 	s.mockBlog.AssertExpectations(s.T())
 }
