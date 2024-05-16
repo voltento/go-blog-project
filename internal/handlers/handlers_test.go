@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -10,6 +9,7 @@ import (
 	"github.com/voltento/go-blog-project/internal/domain"
 	"github.com/voltento/go-blog-project/internal/httperr"
 	"github.com/voltento/go-blog-project/internal/middlewares"
+	"github.com/voltento/go-blog-project/mocks"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -18,17 +18,17 @@ import (
 
 type HandlersTestSuite struct {
 	suite.Suite
-	mockBlog *blogMock
+	mockBlog *mocks.BlogService
 	router   *gin.Engine
 }
 
 func (s *HandlersTestSuite) SetupTest() {
-	s.mockBlog = new(blogMock)
+	s.mockBlog = new(mocks.BlogService)
 	s.router = setupRouter(s.mockBlog)
 }
 
 func (s *HandlersTestSuite) TestGetPostByID() {
-	s.mockBlog.On("Post", domain.PostId(1)).Return(&domain.Post{ID: 1, Title: "Test Title", Content: "Test Content", Author: "Test Author"}, nil)
+	s.mockBlog.On("Post", mock.Anything, domain.PostId(1)).Return(&domain.Post{ID: 1, Title: "Test Title", Content: "Test Content", Author: "Test Author"}, nil)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/posts/1", nil)
@@ -43,7 +43,7 @@ func (s *HandlersTestSuite) TestGetPostByID() {
 }
 
 func (s *HandlersTestSuite) TestGetPostByID_WrongPostIdFormat() {
-	mockBlog := new(blogMock)
+	mockBlog := new(mocks.BlogService)
 	router := setupRouter(mockBlog)
 
 	w := httptest.NewRecorder()
@@ -57,8 +57,8 @@ func (s *HandlersTestSuite) TestGetPostByID_WrongPostIdFormat() {
 
 func (s *HandlersTestSuite) TestCreatePost() {
 	newPost := &domain.Post{Title: "New Post", Content: "New Content", Author: "New Author"}
-	s.mockBlog.On("CreatePost", mock.AnythingOfType("*domain.Post")).Return(domain.PostId(1), nil).Run(func(args mock.Arguments) {
-		post := args.Get(0).(*domain.Post)
+	s.mockBlog.On("CreatePost", mock.Anything, mock.Anything).Return(domain.PostId(1), nil).Run(func(args mock.Arguments) {
+		post := args.Get(1).(*domain.Post)
 		assert.Equal(s.T(), newPost.Title, post.Title)
 		assert.Equal(s.T(), newPost.Content, post.Content)
 		assert.Equal(s.T(), newPost.Author, post.Author)
@@ -88,7 +88,7 @@ func (s *HandlersTestSuite) TestCreatePost_WrongPostFormat() {
 
 func (s *HandlersTestSuite) TestCreatePost_ServiceCreateRequestFailed() {
 	err := httperr.WrapWithHttpCode(errors.New(""), http.StatusConflict)
-	s.mockBlog.On("CreatePost", mock.Anything).Return(domain.PostId(1), err)
+	s.mockBlog.On("CreatePost", mock.Anything, mock.Anything).Return(domain.PostId(1), err)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/posts", strings.NewReader(`{"title":"New Post","content":"New Content","author":"New Author"}`))
@@ -101,7 +101,7 @@ func (s *HandlersTestSuite) TestCreatePost_ServiceCreateRequestFailed() {
 }
 
 func (s *HandlersTestSuite) TestDeletePost() {
-	s.mockBlog.On("DeletePost", domain.PostId(1)).Return(nil)
+	s.mockBlog.On("DeletePost", mock.Anything, domain.PostId(1)).Return(nil)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", "/posts/1", nil)
@@ -124,7 +124,7 @@ func (s *HandlersTestSuite) TestDeletePost_WrongPostIdFormat() {
 
 func (s *HandlersTestSuite) TestDeletePost_serviceReturnsError() {
 	err := httperr.WrapWithHttpCode(errors.New(""), http.StatusConflict)
-	s.mockBlog.On("DeletePost", domain.PostId(1)).Return(err)
+	s.mockBlog.On("DeletePost", mock.Anything, domain.PostId(1)).Return(err)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", "/posts/1", nil)
@@ -136,7 +136,7 @@ func (s *HandlersTestSuite) TestDeletePost_serviceReturnsError() {
 }
 
 func (s *HandlersTestSuite) TestUpdatePost() {
-	s.mockBlog.On("UpdatePost", mock.Anything, domain.PostId(1)).Return(nil)
+	s.mockBlog.On("UpdatePost", mock.Anything, mock.Anything, domain.PostId(1)).Return(nil)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("PUT", "/posts/1", strings.NewReader(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`))
@@ -162,7 +162,7 @@ func (s *HandlersTestSuite) TestUpdatePost_WrongPostIdFormat() {
 
 func (s *HandlersTestSuite) TestUpdatePost_serviceReturnsError() {
 	err := httperr.WrapWithHttpCode(errors.New(""), http.StatusForbidden)
-	s.mockBlog.On("UpdatePost", mock.Anything, domain.PostId(1)).Return(err)
+	s.mockBlog.On("UpdatePost", mock.Anything, mock.Anything, domain.PostId(1)).Return(err)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("PUT", "/posts/1", strings.NewReader(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`))
@@ -186,7 +186,7 @@ func (s *HandlersTestSuite) TestUpdatePost_wrongPostFormat() {
 }
 
 func (s *HandlersTestSuite) TestGetPostByID_NotFound() {
-	s.mockBlog.On("Post", domain.PostId(1)).Return(&domain.Post{}, httperr.WrapWithHttpCode(errors.New("post not found"), http.StatusNotFound))
+	s.mockBlog.On("Post", mock.Anything, domain.PostId(1)).Return(&domain.Post{}, httperr.WrapWithHttpCode(errors.New("post not found"), http.StatusNotFound))
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/posts/1", nil)
@@ -198,7 +198,7 @@ func (s *HandlersTestSuite) TestGetPostByID_NotFound() {
 }
 
 func (s *HandlersTestSuite) TestUpdatePost_NotFound() {
-	s.mockBlog.On("UpdatePost", mock.Anything, domain.PostId(1)).Return(httperr.WrapWithHttpCode(errors.New("post not found"), http.StatusNotFound))
+	s.mockBlog.On("UpdatePost", mock.Anything, mock.Anything, domain.PostId(1)).Return(httperr.WrapWithHttpCode(errors.New("post not found"), http.StatusNotFound))
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("PUT", "/posts/1", strings.NewReader(`{"title":"Updated Title","content":"Updated Content","author":"Updated Author"}`))
@@ -210,7 +210,7 @@ func (s *HandlersTestSuite) TestUpdatePost_NotFound() {
 	s.mockBlog.AssertExpectations(s.T())
 }
 
-func setupRouter(blogService *blogMock) *gin.Engine {
+func setupRouter(blogService *mocks.BlogService) *gin.Engine {
 	r := gin.Default()
 	middlewares.Setup(r)
 	RegisterHandlers(r, blogService)
@@ -219,28 +219,4 @@ func setupRouter(blogService *blogMock) *gin.Engine {
 
 func TestHandlersTestSuite(t *testing.T) {
 	suite.Run(t, new(HandlersTestSuite))
-}
-
-type blogMock struct {
-	mock.Mock
-}
-
-func (m *blogMock) Post(ctx context.Context, id domain.PostId) (*domain.Post, error) {
-	args := m.Called(id)
-	return args.Get(0).(*domain.Post), args.Error(1)
-}
-
-func (m *blogMock) CreatePost(ctx context.Context, post *domain.Post) (domain.PostId, error) {
-	args := m.Called(post)
-	return args.Get(0).(domain.PostId), args.Error(1)
-}
-
-func (m *blogMock) DeletePost(ctx context.Context, id domain.PostId) error {
-	args := m.Called(id)
-	return args.Error(0)
-}
-
-func (m *blogMock) UpdatePost(ctx context.Context, post *domain.Post, id domain.PostId) error {
-	args := m.Called(post, id)
-	return args.Error(0)
 }
