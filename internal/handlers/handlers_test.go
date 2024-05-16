@@ -43,14 +43,10 @@ func (s *HandlersTestSuite) SetupTest() {
 func (s *HandlersTestSuite) TestGetPostByID() {
 	s.mockBlog.On("Post", mock.Anything, domain.PostId(1)).Return(&domain.Post{ID: 1, Title: "Test Title", Content: "Test Content", Author: "Test Author"}, nil)
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/posts/1", nil)
-	s.router.ServeHTTP(w, req)
-
-	assert.Equal(s.T(), http.StatusOK, w.Code)
-	assert.Contains(s.T(), w.Body.String(), "Test Title")
-	assert.Contains(s.T(), w.Body.String(), "Test Content")
-	assert.Contains(s.T(), w.Body.String(), "Test Author")
+	s.expect.GET("/posts/1").
+		Expect().
+		Status(http.StatusOK).
+		Body().IsEqual("{\"ID\":1,\"Title\":\"Test Title\",\"Content\":\"Test Content\",\"Author\":\"Test Author\"}")
 
 	s.mockBlog.AssertExpectations(s.T())
 }
